@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>NEXREP 小医生</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #f97316, #fff);
+      padding: 20px;
+    }
+    h1 {
+      color: white;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .buttons button {
+      flex: 1 1 45%;
+      background-color: #f97316;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .buttons button:hover {
+      background-color: #ea580c;
+    }
+    .chat-box {
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 10px;
+      background: #fafafa;
+      margin-bottom: 10px;
+    }
+    .message {
+      padding: 10px 14px;
+      border-radius: 18px;
+      margin: 8px 0;
+      white-space: pre-line;
+      max-width: 80%;
+    }
+    .user {
+      background: #fff;
+      border: 1px solid #ccc;
+      margin-left: auto;
+      text-align: right;
+    }
+    .bot {
+      background: #f97316;
+      color: white;
+      margin-right: auto;
+      text-align: left;
+    }
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button.send-btn {
+      background: #f97316;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 NEXREP AI 小医生</h1>
+  <div class="container">
+    <div class="buttons" id="buttons"></div>
+    <div class="chat-box" id="chat"></div>
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="请输入与 NexRep 或 足之宝相关问题..." />
+      <button class="send-btn" onclick="sendMessage()">发送</button>
+    </div>
+  </div>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("userInput");
+    const buttonArea = document.getElementById("buttons");
+
+    const presetQuestions = [
+      ["足之宝是什么", "What is D'Medifeet?"],
+      ["有什么疗效与观察", "Benefits & Testimonials"],
+      ["适合什么人群", "Who is it for?"],
+      ["哪些人不适合使用", "Who should avoid it?"],
+      ["RM0 免费体验怎么参与", "How to join RM0 Trial?"],
+      ["抽盒机制怎么玩", "How does blind box work?"],
+      ["怎么赚钱", "How to earn with NexRep?"],
+      ["合伙人奖励制度", "Affiliate Reward Plan"],
+      ["怎么领 RM20,000 广告费", "Claim RM20,000 Ad Bonus"],
+      ["还有其他支持吗", "Any other support?"]
+    ];
+
+    presetQuestions.forEach(([zh, en]) => {
+      const btn = document.createElement("button");
+      btn.innerHTML = `${zh}<br><small>${en}</small>`;
+      btn.onclick = () => handleInput(`${zh}`);
+      buttonArea.appendChild(btn);
+    });
+
+    function appendMessage(role, text) {
+      const msg = document.createElement("div");
+      msg.className = `message ${role}`;
+      msg.textContent = text;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function handleInput(userText) {
+      appendMessage("user", userText);
+      appendMessage("bot", "正在回复中...");
+      fetchGPT(userText);
+    }
+
+    function sendMessage() {
+      const userText = input.value.trim();
+      if (!userText) return;
+      input.value = "";
+      handleInput(userText);
+    }
+
+    async function fetchGPT(userText) {
+      const SYSTEM_PROMPT = `你是 NEXREP AI 小医生，只能回答 \"NEXREP 全民代言计划\" 和 \"足之宝\" 相关问题，不允许回答超出这些范围的问题。若用户提问不相关问题，回答：我只能协助您了解 NexRep 与足之宝相关内容哦 😊`;
+
+      const res = await fetch("https://nexrep-ai-chat.vercel.app/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: userText }
+          ]
+        })
+      });
+
+      const data = await res.json();
+      const allBotMsgs = document.querySelectorAll(".bot");
+      allBotMsgs[allBotMsgs.length - 1].textContent = data.reply || "抱歉，我暂时无法回复这个问题。";
+    }
+  </script>
+</body>
+</html>
