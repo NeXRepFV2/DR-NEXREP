@@ -148,10 +148,10 @@
     }
 
     async function fetchGPT(userText) {
-      const SYSTEM_PROMPT = `你是 NEXREP AI 小医生，只能回答 \"NEXREP 全民代言计划\" 和 \"足之宝\" 相关问题，不允许回答超出这些范围的问题。若用户提问不相关问题，回答：我只能协助您了解 NexRep 与足之宝相关内容哦 😊`;
+      const SYSTEM_PROMPT = `你是 NEXREP AI 小医生，只能回答 "NEXREP 全民代言计划" 和 "足之宝" 相关问题，其他问题一律拒答。若用户提问不相关内容，回答：我只能协助您了解 NexRep 与足之宝相关内容哦 😊`;
 
       try {
-        const res = await fetch("https://nexrep-cors-test.vercel.app/api/chat", {
+        const res = await fetch("https://nexrep-ai-github.vercel.app/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
