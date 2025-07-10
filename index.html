@@ -150,20 +150,25 @@
     async function fetchGPT(userText) {
       const SYSTEM_PROMPT = `你是 NEXREP AI 小医生，只能回答 \"NEXREP 全民代言计划\" 和 \"足之宝\" 相关问题，不允许回答超出这些范围的问题。若用户提问不相关问题，回答：我只能协助您了解 NexRep 与足之宝相关内容哦 😊`;
 
-      const res = await fetch("https://nexrep-ai-chat.vercel.app/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: userText }
-          ]
-        })
-      });
+      try {
+        const res = await fetch("https://nexrep-ai-chat-demo.vercel.app/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [
+              { role: "system", content: SYSTEM_PROMPT },
+              { role: "user", content: userText }
+            ]
+          })
+        });
 
-      const data = await res.json();
-      const allBotMsgs = document.querySelectorAll(".bot");
-      allBotMsgs[allBotMsgs.length - 1].textContent = data.reply || "抱歉，我暂时无法回复这个问题。";
+        const data = await res.json();
+        const allBotMsgs = document.querySelectorAll(".bot");
+        allBotMsgs[allBotMsgs.length - 1].textContent = data.reply || "抱歉，我暂时无法回复这个问题。";
+      } catch (e) {
+        const allBotMsgs = document.querySelectorAll(".bot");
+        allBotMsgs[allBotMsgs.length - 1].textContent = "网络错误，请稍后重试。";
+      }
     }
   </script>
 </body>
